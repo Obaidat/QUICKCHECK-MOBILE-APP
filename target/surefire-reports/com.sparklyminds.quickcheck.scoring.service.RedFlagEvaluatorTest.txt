@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.sparklyminds.quickcheck.scoring.service.RedFlagEvaluatorTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.071 s -- in com.sparklyminds.quickcheck.scoring.service.RedFlagEvaluatorTest
