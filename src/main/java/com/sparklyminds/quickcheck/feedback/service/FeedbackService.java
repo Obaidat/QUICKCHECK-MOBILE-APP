@@ -1,7 +1,7 @@
 package com.sparklyminds.quickcheck.feedback.service;
 
-import com.sparklyminds.quickcheck.A_done.assessment.repository.AssessmentRepository;
-import com.sparklyminds.quickcheck.A_done.common.exception.ResourceNotFoundException;
+import com.sparklyminds.quickcheck.assessment.repository.AssessmentRepository;
+import com.sparklyminds.quickcheck.common.exception.ResourceNotFoundException;
 import com.sparklyminds.quickcheck.feedback.dto.FeedbackResponse;
 import com.sparklyminds.quickcheck.feedback.dto.SubmitFeedbackRequest;
 import com.sparklyminds.quickcheck.feedback.entity.Feedback;

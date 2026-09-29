@@ -1,14 +1,14 @@
-package com.sparklyminds.quickcheck.submission.dto;
+package com.sparklyminds.quickcheck.scoring.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class SubmissionResponse {
+public class ScoringResponse {
 
     private Long id;
     private Long questionId;
-    private boolean value;
+    private int points;
     private boolean redFlag;
 }

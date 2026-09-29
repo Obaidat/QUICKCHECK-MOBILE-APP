@@ -1,6 +1,6 @@
 package com.sparklyminds.quickcheck.feedback.entity;
 
-import com.sparklyminds.quickcheck.A_done.assessment.entity.Assessment;
+import com.sparklyminds.quickcheck.assessment.entity.Assessment;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,10 +20,7 @@ public class Feedback {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-            name = "assessment_id",
-            nullable = false
-    )
+    @JoinColumn(name = "assessment_id", nullable = false)
     private Assessment assessment;
 
     @Column(nullable = false)
@@ -32,10 +29,7 @@ public class Feedback {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @Column(
-            nullable = false,
-            updatable = false
-    )
+    @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
     @PrePersist

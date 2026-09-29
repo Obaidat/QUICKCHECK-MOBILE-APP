@@ -1,4 +1,4 @@
-package com.sparklyminds.quickcheck.submission.entity;
+package com.sparklyminds.quickcheck.scoring.entity;
 
 import com.sparklyminds.quickcheck.question.entity.Question;
 import jakarta.persistence.*;
@@ -7,11 +7,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "submission")
+@Table(
+        name = "scoring_rules",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_scoring_rule_question_answer",
+                columnNames = {"question_id", "answer_value"}
+        )
+)
 @Getter
 @Setter
 @NoArgsConstructor
-public class Submission {
+public class ScoringRule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +28,7 @@ public class Submission {
     private Question question;
 
     @Column(nullable = false)
-    private boolean value;
+    private int points;
 
     @Column(nullable = false)
     private boolean redFlag;

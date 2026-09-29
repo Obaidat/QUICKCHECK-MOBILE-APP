@@ -19,18 +19,12 @@ public class FeedbackController {
     private final FeedbackService service;
 
     @PostMapping
-    public ResponseEntity<FeedbackResponse> submit(
-            @Valid @RequestBody SubmitFeedbackRequest request
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(service.submit(request));
+    public ResponseEntity<FeedbackResponse> submit(@Valid @RequestBody SubmitFeedbackRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.submit(request));
     }
 
     @GetMapping("/admin/assessment/{assessmentId}")
-    public List<FeedbackResponse> list(
-            @PathVariable Long assessmentId
-    ) {
+    public List<FeedbackResponse> list(@PathVariable Long assessmentId) {
         return service.list(assessmentId);
     }
 }

@@ -1,4 +1,4 @@
-package com.sparklyminds.quickcheck.submission.dto;
+package com.sparklyminds.quickcheck.scoring.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -6,13 +6,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SubmissionRequest {
+public class ScoringRequest {
 
     @NotNull
     private Long questionId;
 
     @NotNull
-    private Boolean value;
+    private Integer points;
 
     @NotNull
     private Boolean redFlag;

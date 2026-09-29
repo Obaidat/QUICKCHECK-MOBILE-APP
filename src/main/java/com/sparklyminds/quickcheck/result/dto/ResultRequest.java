@@ -1,16 +1,15 @@
 package com.sparklyminds.quickcheck.result.dto;
 
 import com.sparklyminds.quickcheck.common.enums.Language;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
-@Builder
-public class ResultResponse {
+@Setter
+public class ResultRequest {
 
-    private Long id;
     private Long assessmentId;
     private int minPoints;
     private int maxPoints;
@@ -18,9 +17,8 @@ public class ResultResponse {
     private List<Translation> translations;
 
     @Getter
-    @Builder
+    @Setter
     public static class Translation {
-        private Long id;
         private Language language;
         private String headAnswer;
         private String shortAnswer;
