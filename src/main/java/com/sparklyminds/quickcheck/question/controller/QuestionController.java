@@ -1,5 +1,6 @@
 package com.sparklyminds.quickcheck.question.controller;
 
+import com.sparklyminds.quickcheck.common.enums.Language;
 import com.sparklyminds.quickcheck.question.dto.QuestionRequest;
 import com.sparklyminds.quickcheck.question.dto.QuestionResponse;
 import com.sparklyminds.quickcheck.question.service.QuestionService;
@@ -50,6 +51,12 @@ public class QuestionController {
     @PatchMapping("/admin/{id}/enabled")
     public ResponseEntity<QuestionResponse> updateEnabled(@PathVariable Long id, @RequestParam boolean enabled) {
         return ResponseEntity.ok(questionService.updateEnabled(id, enabled));
+    }
+
+    @DeleteMapping("/admin/{id}/translations")
+    public ResponseEntity<Void> deleteTranslation(@PathVariable Long id, @RequestParam("language") Language language) {
+        questionService.deleteTranslation(id, language);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/admin/{id}")

@@ -29,9 +29,6 @@ public class Question {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    @Column(nullable = false)
-    private boolean required = true;
-
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionTranslation> translations = new ArrayList<>();
 

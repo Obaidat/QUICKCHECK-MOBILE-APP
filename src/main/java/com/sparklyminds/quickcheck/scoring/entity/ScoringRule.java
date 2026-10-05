@@ -11,7 +11,7 @@ import lombok.Setter;
         name = "scoring_rules",
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_scoring_rule_question_answer",
-                columnNames = {"question_id", "answer_value"}
+                columnNames = {"question_id"}
         )
 )
 @Getter

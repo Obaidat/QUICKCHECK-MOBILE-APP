@@ -21,55 +21,30 @@ public class ResultController {
     // ---------------------- PUBLIC ---------------------- //
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResultResponse> getById(
-            @PathVariable Long id
-    ) {
-
-        return ResponseEntity.ok(
-                resultService.getById(id)
-        );
+    public ResponseEntity<ResultResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(resultService.getById(id));
     }
 
     // ---------------------- ADMIN ---------------------- //
 
     @GetMapping("/admin/assessment/{assessmentId}")
-    public ResponseEntity<List<ResultResponse>> getByAssessment(
-            @PathVariable Long assessmentId
-    ) {
-
-        return ResponseEntity.ok(
-                resultService.getByAssessmentId(assessmentId)
-        );
+    public ResponseEntity<List<ResultResponse>> getByAssessment(@PathVariable Long assessmentId) {
+        return ResponseEntity.ok(resultService.getByAssessmentId(assessmentId));
     }
 
-    @PostMapping
-    public ResponseEntity<ResultResponse> create(
-            @Valid @RequestBody ResultRequest request
-    ) {
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(resultService.create(request));
+    @PostMapping("/admin")
+    public ResponseEntity<ResultResponse> create(@Valid @RequestBody ResultRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(resultService.create(request));
     }
 
     @PutMapping("/admin/{id}")
-    public ResponseEntity<ResultResponse> update(
-            @PathVariable Long id,
-            @Valid @RequestBody ResultRequest request
-    ) {
-
-        return ResponseEntity.ok(
-                resultService.update(id, request)
-        );
+    public ResponseEntity<ResultResponse> update(@PathVariable Long id, @Valid @RequestBody ResultRequest request) {
+        return ResponseEntity.ok(resultService.update(id, request));
     }
 
     @DeleteMapping("/admin/{id}")
-    public ResponseEntity<Void> delete(
-            @PathVariable Long id
-    ) {
-
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         resultService.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

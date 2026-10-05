@@ -8,7 +8,6 @@ import com.sparklyminds.quickcheck.question.dto.QuestionResponse;
 import com.sparklyminds.quickcheck.question.entity.Question;
 import com.sparklyminds.quickcheck.question.entity.QuestionTranslation;
 import com.sparklyminds.quickcheck.question.mapper.QuestionMapper;
-import com.sparklyminds.quickcheck.question.mapper.QuestionTranslationMapper;
 import com.sparklyminds.quickcheck.question.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import com.sparklyminds.quickcheck.common.exception.BadRequestException;
@@ -26,7 +25,6 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final AssessmentRepository assessmentRepository;
     private final QuestionMapper questionMapper;
-    private final QuestionTranslationMapper translationMapper;
 
     // ---------------------- PUBLIC ---------------------- //
 
@@ -71,9 +69,7 @@ public class QuestionService {
         // Add translations
         if (request.getTranslations() != null) {
             for (var translationRequest : request.getTranslations()) {
-                QuestionTranslation translation =
-                        translationMapper.toEntity(translationRequest);
-
+                QuestionTranslation translation = questionMapper.toTranslationEntity(translationRequest);
                 question.addTranslation(translation);
             }
         }
@@ -84,29 +80,60 @@ public class QuestionService {
     }
 
     public QuestionResponse update(Long id, QuestionRequest request) {
+
         validateTranslations(request);
         Question question = findById(id);
+
         Assessment assessment = requireAssessment(request.getAssessmentId());
 
-        // Update question fields
-        questionMapper.updateEntity(question, request);
-        question.setAssessment(assessment);
-
-        // Replace translations
-        question.getTranslations().clear();
-        if (request.getTranslations() != null) {
+        if (question.getAssessment().getId().equals(request.getAssessmentId())) {
+            questionMapper.updateEntity(question, request);
             for (var translationRequest : request.getTranslations()) {
-                QuestionTranslation translation = translationMapper.toEntity(translationRequest);
-                question.addTranslation(translation);
+                boolean found = false;
+                for (var translationEntity : question.getTranslations()) {
+                    if (translationRequest.getLanguage().equals(translationEntity.getLanguage())) {
+                        questionMapper.updateTranslationEntity(translationEntity, translationRequest);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    question.addTranslation(questionMapper.toTranslationEntity(translationRequest));
+                }
             }
+            return questionMapper.toResponse(question);
+
         }
-        return questionMapper.toResponse(question);
+        else {
+            throw new BadRequestException("Question assessment cannot be changed");
+        }
     }
 
     public QuestionResponse updateEnabled(Long id, boolean enabled) {
         Question question = findById(id);
         question.setEnabled(enabled);
         return questionMapper.toResponse(question);
+    }
+
+    public void deleteTranslation(Long id, Language language) {
+
+        Question question = findById(id);
+
+        if (question.getTranslations().size() <= 1) {
+            throw new BadRequestException(
+                    "Question must have at least one translation"
+            );
+        }
+
+        QuestionTranslation translation = question.getTranslations()
+                .stream()
+                .filter(t -> t.getLanguage().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Translation not found for language: " + language
+                ));
+        question.getTranslations().remove(translation);
     }
 
     public void delete(Long id) {

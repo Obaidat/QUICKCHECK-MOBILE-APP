@@ -1,6 +1,7 @@
 package com.sparklyminds.quickcheck.submission.service;
 
 import com.sparklyminds.quickcheck.common.exception.ResourceNotFoundException;
+import com.sparklyminds.quickcheck.scoring.dto.ScoringResponse;
 import com.sparklyminds.quickcheck.scoring.service.ScoringService;
 import com.sparklyminds.quickcheck.submission.dto.SubmissionRequest;
 import com.sparklyminds.quickcheck.result.dto.ResultResponse;
@@ -24,14 +25,22 @@ public class SubmissionService {
 
         int finalValue = 0;
         boolean hasRedFlag = false;
+
+        // Count points & check for red flags
         for (SubmissionRequest submissionRequest : requests) {
-            if (submissionRequest.getRedFlag() && scoringService.isRedFlag(submissionRequest.getQuestionId())) {
-                hasRedFlag = true;
+
+            ScoringResponse scoring = scoringService.getByQuestionId(submissionRequest.getQuestionId());
+
+            if (submissionRequest.getValue()) {
+                finalValue += scoring.getPoints();
+
+                if (scoring.isRedFlag()) {
+                    hasRedFlag = true;
+                }
             }
-            finalValue += submissionRequest.getValue() ?
-                    scoringService.getByQuestionId(submissionRequest.getQuestionId()).getPoints() : 0;
         }
 
+        // Red flag result OR normal result based on score
         List<ResultResponse> results = resultService.getByAssessmentId(assessmentId);
         for (ResultResponse resultResponse : results) {
 

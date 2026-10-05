@@ -11,5 +11,5 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
 
     List<Result> findByAssessmentIdOrderByMinPointsAsc(Long assessmentId);
 
-    List<Result> findByAssessmentIdAndRedFlagResult(Long assessmentId, boolean redFlagResult);
+    List<Result> findByAssessmentIdAndRedFlag(Long assessmentId, boolean redFlag);
 }

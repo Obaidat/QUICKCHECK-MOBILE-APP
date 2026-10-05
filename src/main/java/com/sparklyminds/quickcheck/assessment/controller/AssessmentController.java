@@ -3,6 +3,7 @@ package com.sparklyminds.quickcheck.assessment.controller;
 import com.sparklyminds.quickcheck.assessment.dto.AssessmentRequest;
 import com.sparklyminds.quickcheck.assessment.dto.AssessmentResponse;
 import com.sparklyminds.quickcheck.assessment.service.AssessmentService;
+import com.sparklyminds.quickcheck.common.enums.Language;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class AssessmentController {
     }
 
     // Create a new assessment
-    @PostMapping
+    @PostMapping("/admin")
     public ResponseEntity<AssessmentResponse> createAssessment(@Valid @RequestBody AssessmentRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -57,6 +58,12 @@ public class AssessmentController {
     @PatchMapping("/admin/{id}/enabled")
     public ResponseEntity<AssessmentResponse> updateEnabled(@PathVariable Long id, @RequestParam boolean enabled) {
         return ResponseEntity.ok(assessmentService.updateEnabled(id, enabled));
+    }
+
+    @DeleteMapping("/admin/{id}/translations")
+    public ResponseEntity<Void> deleteTranslation(@PathVariable Long id, @RequestParam Language language) {
+        assessmentService.deleteTranslation(id, language);
+        return ResponseEntity.noContent().build();
     }
 
     // Delete an assessment

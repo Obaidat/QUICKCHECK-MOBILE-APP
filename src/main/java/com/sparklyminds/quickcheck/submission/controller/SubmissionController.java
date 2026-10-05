@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/assessment-submission")
+@RequestMapping("/submission")
 @RequiredArgsConstructor
 public class SubmissionController {
 
     private final SubmissionService submissionService;
 
     // Submit multiple answers at once
-    @PostMapping
-    public ResponseEntity<List<ResultResponse.Translation>> createSubmission(@RequestParam Long assessmentId, @Valid @RequestBody List<SubmissionRequest> requests) {
+    @PostMapping("/assessment/{assessmentId}")
+    public ResponseEntity<List<ResultResponse.Translation>> createSubmission(@PathVariable Long assessmentId, @Valid @RequestBody List<SubmissionRequest> requests) {
         return ResponseEntity.status(HttpStatus.CREATED).body(submissionService.create(assessmentId, requests));
     }
 }

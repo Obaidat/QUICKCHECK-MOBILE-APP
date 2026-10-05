@@ -17,24 +17,24 @@ public class ScoringController {
     private final ScoringService scoringRuleService;
 
     // Get all scoring rules for a question
-    @GetMapping("/question/{questionId}")
+    @GetMapping("/admin/question/{questionId}")
     public ResponseEntity<ScoringResponse> getByQuestion(@PathVariable Long questionId) {
         return ResponseEntity.ok(scoringRuleService.getByQuestionId(questionId));
     }
 
     // Get scoring rule by ID
-    @GetMapping("/{id}")
+    @GetMapping("/admin/{id}")
     public ResponseEntity<ScoringResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(scoringRuleService.getById(id));
     }
 
-    @GetMapping("/question/{questionId}/red-flag")
+    @GetMapping("/admin/question/{questionId}/red-flag")
     public ResponseEntity<Boolean> isRedFlag(@PathVariable Long questionId) {
         return ResponseEntity.ok(scoringRuleService.isRedFlag(questionId));
     }
 
     // Create scoring rule
-    @PostMapping
+    @PostMapping("/admin")
     public ResponseEntity<ScoringResponse> create(@Valid @RequestBody ScoringRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(scoringRuleService.create(request));
     }

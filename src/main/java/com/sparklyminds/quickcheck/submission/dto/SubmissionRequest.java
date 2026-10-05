@@ -13,7 +13,4 @@ public class SubmissionRequest {
 
     @NotNull
     private Boolean value;
-
-    @NotNull
-    private Boolean redFlag;
 }

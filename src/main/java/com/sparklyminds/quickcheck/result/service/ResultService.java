@@ -2,6 +2,8 @@ package com.sparklyminds.quickcheck.result.service;
 
 import com.sparklyminds.quickcheck.assessment.entity.Assessment;
 import com.sparklyminds.quickcheck.assessment.repository.AssessmentRepository;
+import com.sparklyminds.quickcheck.common.enums.Language;
+import com.sparklyminds.quickcheck.common.exception.BadRequestException;
 import com.sparklyminds.quickcheck.common.exception.ResourceNotFoundException;
 import com.sparklyminds.quickcheck.result.dto.ResultRequest;
 import com.sparklyminds.quickcheck.result.dto.ResultResponse;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -28,7 +31,6 @@ public class ResultService {
 
     @Transactional(readOnly = true)
     public List<ResultResponse> getByAssessmentId(Long assessmentId) {
-
         return resultRepository
                 .findByAssessmentIdOrderByMinPointsAsc(assessmentId)
                 .stream()
@@ -38,14 +40,12 @@ public class ResultService {
 
     @Transactional(readOnly = true)
     public ResultResponse getById(Long id) {
-
         return resultMapper.toResponse(findById(id));
     }
 
     // ---------------------- CREATE ---------------------- //
 
     public ResultResponse create(ResultRequest request) {
-
         Assessment assessment = assessmentRepository
                 .findById(request.getAssessmentId())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -55,21 +55,15 @@ public class ResultService {
 
         Result result = resultMapper.toEntity(request);
         result.setAssessment(assessment);
-
         addTranslations(result, request);
-
         Result saved = resultRepository.save(result);
-
         return resultMapper.toResponse(saved);
     }
 
     // ---------------------- UPDATE ---------------------- //
 
-    public ResultResponse update(
-            Long id,
-            ResultRequest request
-    ) {
-
+    public ResultResponse update(Long id, ResultRequest request) {
+        validateTranslations(request);
         Result result = findById(id);
 
         Assessment assessment = assessmentRepository
@@ -79,46 +73,45 @@ public class ResultService {
                                 + request.getAssessmentId()
                 ));
 
+        // Update result fields
         resultMapper.updateEntity(result, request);
-
         result.setAssessment(assessment);
 
-        // Replace translations
-        result.getTranslations().clear();
+        // Update existing translations and add new ones
+        for (var translationRequest : request.getTranslations()) {
+            boolean found = false;
+            for (var translationEntity : result.getTranslations()) {
+                if (translationRequest.getLanguage().equals(translationEntity.getLanguage())) {
+                    resultMapper.updateTranslationEntity(translationEntity, translationRequest);
+                    found = true;
+                    break;
+                }
+            }
 
-        addTranslations(result, request);
-
+            if (!found) {
+                result.addTranslation(resultMapper.toTranslationEntity(translationRequest));
+            }
+        }
         return resultMapper.toResponse(result);
     }
 
     // ---------------------- DELETE ---------------------- //
 
     public void delete(Long id) {
-
         Result result = findById(id);
-
         resultRepository.delete(result);
     }
 
     // ---------------------- TRANSLATIONS ---------------------- //
 
-    private void addTranslations(
-            Result result,
-            ResultRequest request
-    ) {
+    private void addTranslations(Result result, ResultRequest request) {
 
         if (request.getTranslations() == null) {
             return;
         }
 
-        for (ResultRequest.Translation translationRequest
-                : request.getTranslations()) {
-
-            ResultTranslation translation =
-                    resultMapper.toTranslationEntity(
-                            translationRequest
-                    );
-
+        for (ResultRequest.Translation translationRequest : request.getTranslations()) {
+            ResultTranslation translation = resultMapper.toTranslationEntity(translationRequest);
             result.addTranslation(translation);
         }
     }
@@ -132,5 +125,17 @@ public class ResultService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Result not found with id: " + id
                 ));
+    }
+
+    private void validateTranslations(ResultRequest request) {
+        var languages = new HashSet<Language>();
+
+        request.getTranslations().forEach(translation -> {
+            if (!languages.add(translation.getLanguage())) {
+                throw new BadRequestException(
+                        "A result can have only one translation per language"
+                );
+            }
+        });
     }
 }

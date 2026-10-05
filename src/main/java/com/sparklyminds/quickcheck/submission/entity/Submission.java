@@ -23,7 +23,4 @@ public class Submission {
 
     @Column(nullable = false)
     private boolean value;
-
-    @Column(nullable = false)
-    private boolean redFlag;
 }

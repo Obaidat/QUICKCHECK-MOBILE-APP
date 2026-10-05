@@ -10,5 +10,4 @@ public class SubmissionResponse {
     private Long id;
     private Long questionId;
     private boolean value;
-    private boolean redFlag;
 }

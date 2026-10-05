@@ -1,5 +1,6 @@
 package com.sparklyminds.quickcheck.question.dto;
 
+import com.sparklyminds.quickcheck.common.enums.Language;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,14 @@ public class QuestionResponse {
     private Long assessmentId;
     private Integer questionOrder;
     private boolean enabled;
-    private boolean required;
-    private List<QuestionTranslationResponse> translations;
+    private List<Translation> translations;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Translation {
+        private Long id;
+        private Language language;
+        private String text;
+    }
 }

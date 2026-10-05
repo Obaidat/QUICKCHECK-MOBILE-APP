@@ -5,7 +5,6 @@ import com.sparklyminds.quickcheck.assessment.dto.AssessmentResponse;
 import com.sparklyminds.quickcheck.assessment.entity.Assessment;
 import com.sparklyminds.quickcheck.assessment.entity.AssessmentTranslation;
 import com.sparklyminds.quickcheck.assessment.mapper.AssessmentMapper;
-import com.sparklyminds.quickcheck.assessment.mapper.AssessmentTranslationMapper;
 import com.sparklyminds.quickcheck.assessment.repository.AssessmentRepository;
 import com.sparklyminds.quickcheck.common.enums.Language;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class AssessmentService {
 
     private final AssessmentRepository assessmentRepository;
     private final AssessmentMapper assessmentMapper;
-    private final AssessmentTranslationMapper translationMapper;
 
     // ---------------------- PUBLIC ---------------------- //
 
@@ -57,9 +55,7 @@ public class AssessmentService {
     public AssessmentResponse create(AssessmentRequest request) {
         validateTranslations(request);
         if (assessmentRepository.existsByCode(request.getCode())) {
-            throw new BadRequestException(
-                    "Assessment with code already exists: " + request.getCode()
-            );
+            throw new BadRequestException("Assessment with code already exists: " + request.getCode());
         }
 
         // Create assessment
@@ -67,7 +63,7 @@ public class AssessmentService {
 
         // Add translations
         for (var translationRequest : request.getTranslations()) {
-            AssessmentTranslation translation = translationMapper.toEntity(translationRequest);
+            AssessmentTranslation translation = assessmentMapper.toTranslationEntity(translationRequest);
             assessment.addTranslation(translation);
         }
 
@@ -80,22 +76,27 @@ public class AssessmentService {
         validateTranslations(request);
         Assessment assessment = findById(id);
 
-        if (!assessment.getCode().equals(request.getCode()) && assessmentRepository.existsByCode(request.getCode())) {
-            throw new BadRequestException(
-                    "Assessment with code already exists: " + request.getCode()
-            );
+        if (assessment.getCode().equals(request.getCode())) {
+            assessmentMapper.updateEntity(assessment, request);
+
+            for (var translationRequest : request.getTranslations()) {
+                boolean found = false;
+                for (var translationEntity : assessment.getTranslations()) {
+                    if (translationRequest.getLanguage().equals(translationEntity.getLanguage())) {
+                        assessmentMapper.updateTranslationEntity(translationEntity, translationRequest);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    assessment.addTranslation(assessmentMapper.toTranslationEntity(translationRequest));
+                }
+            }
+            return assessmentMapper.toResponse(assessment);
         }
-
-        // Update assessment fields
-        assessmentMapper.updateEntity(assessment, request);
-
-        // Replace translations so omitted languages are removed under orphanRemoval.
-        assessment.getTranslations().clear();
-        for (var translationRequest : request.getTranslations()) {
-            assessment.addTranslation(translationMapper.toEntity(translationRequest));
+        else {
+            throw new BadRequestException("Assessment code cannot be changed");
         }
-
-        return assessmentMapper.toResponse(assessment);
     }
 
     public AssessmentResponse updateEnabled(Long id, boolean enabled) {
@@ -107,6 +108,26 @@ public class AssessmentService {
     public void delete(Long id) {
         Assessment assessment = findById(id);
         assessmentRepository.delete(assessment);
+    }
+
+    public void deleteTranslation(Long id, Language language) {
+
+        Assessment assessment = findById(id);
+
+        if (assessment.getTranslations().size() <= 1) {
+            throw new BadRequestException(
+                    "Assessment must have at least one translation"
+            );
+        }
+
+        AssessmentTranslation translation = assessment.getTranslations()
+                .stream()
+                .filter(t -> t.getLanguage().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Translation not found for language: " + language
+                ));
+        assessment.getTranslations().remove(translation);
     }
 
     // ---------------------- HELPER ---------------------- //

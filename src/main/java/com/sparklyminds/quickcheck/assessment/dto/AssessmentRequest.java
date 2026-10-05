@@ -1,5 +1,6 @@
 package com.sparklyminds.quickcheck.assessment.dto;
 
+import com.sparklyminds.quickcheck.common.enums.Language;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -24,5 +25,20 @@ public class AssessmentRequest {
 
     @NotEmpty
     @Valid
-    private List<AssessmentTranslationRequest> translations;
+    private List<Translation> translations;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Translation {
+
+        @NotNull
+        private Language language;
+
+        @NotBlank
+        @Size(max = 255)
+        private String name;
+
+        private String description;
+    }
 }

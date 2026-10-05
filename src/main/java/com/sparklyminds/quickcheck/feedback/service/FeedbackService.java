@@ -5,6 +5,7 @@ import com.sparklyminds.quickcheck.common.exception.ResourceNotFoundException;
 import com.sparklyminds.quickcheck.feedback.dto.FeedbackResponse;
 import com.sparklyminds.quickcheck.feedback.dto.SubmitFeedbackRequest;
 import com.sparklyminds.quickcheck.feedback.entity.Feedback;
+import com.sparklyminds.quickcheck.feedback.mapper.FeedBackMapper;
 import com.sparklyminds.quickcheck.feedback.repository.FeedbackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class FeedbackService {
 
     private final FeedbackRepository repository;
     private final AssessmentRepository assessmentRepository;
+    private final FeedBackMapper feedBackMapper;
 
     public FeedbackResponse submit(SubmitFeedbackRequest request) {
 
@@ -36,28 +38,15 @@ public class FeedbackService {
         feedback.setRating(request.getRating());
         feedback.setComment(request.getComment());
 
-        return toResponse(repository.save(feedback));
+        return feedBackMapper.toResponse(repository.save(feedback));
     }
 
     @Transactional(readOnly = true)
     public List<FeedbackResponse> list(Long assessmentId) {
-
         return repository
                 .findByAssessmentIdOrderByCreatedAtDesc(assessmentId)
                 .stream()
-                .map(this::toResponse)
+                .map(feedBackMapper::toResponse)
                 .toList();
-    }
-
-    private FeedbackResponse toResponse(Feedback feedback) {
-
-        return FeedbackResponse
-                .builder()
-                .id(feedback.getId())
-                .assessmentId(feedback.getAssessment().getId())
-                .rating(feedback.getRating())
-                .comment(feedback.getComment())
-                .createdAt(feedback.getCreatedAt())
-                .build();
     }
 }
